@@ -4,6 +4,8 @@ using System.Globalization;
 using System.Security;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Threading;
 using DemoTestWPF;
 using Microsoft.SqlServer.Server;
 using QuikSharp;
@@ -18,9 +20,10 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
 
     private readonly Quik _quik;
     private readonly char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
-    public static MainWindow wnd = new MainWindow() ;
+    //public MainWindow wnd => (MainWindow)Application.Current.MainWindow;
+    MainWindow wnd = (MainWindow)App.Current.MainWindow; // рабочий вариант пользования метода Log()
     private decimal lastPrice;
-     
+    
 
     /// <summary>
     ///     Конструктор класса
@@ -38,14 +41,10 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         GetBaseParam(quik, securityCode);
     }
 
-    public void LLog(string s) 
+    public void Log(string s) 
     {
-
-        wnd.Dispatcher.Invoke(() =>
-        {
-             wnd.TextBoxLog.AppendText(DateTime.Now.ToString("HH:mm:ss.ff") + " - " + s + Environment.NewLine);
-             wnd.TextBoxLog.ScrollToLine(wnd.TextBoxLog.LineCount - 1); 
-        }); 
+        Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
+        //wnd.Log(s);
     }
 
     private void GetBaseParam(Quik quik, string secCode)
@@ -135,9 +134,8 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             var bestBuy = orderbook.bid[orderbook.bid.Length - 1];
             var bestSell = orderbook.offer[0];
             Console.WriteLine(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity);
-        }
-
-        LLog(" ++++ ");
+            Log(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity);
+        } 
     }
 
     private void CandlesOnNewCandle(Candle candle)

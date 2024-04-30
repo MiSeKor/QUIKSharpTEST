@@ -52,7 +52,7 @@ namespace DemoTestWPF
         {
             InitializeComponent();
         }
-
+         
         public void Log(string str)
         {
             //TextBoxLog.AppendText(str + Environment.NewLine); 
