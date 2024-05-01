@@ -41,11 +41,12 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         GetBaseParam(quik, securityCode);
     }
 
-    public void Log(string s) 
-    {
-        Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
-        //wnd.Log(s);
-    }
+    // public void Log(string s) // рабочие вариант пользования метода Log()
+    // {
+    //     Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
+    //     //wnd.Log(s);
+    // }
+    //public void Log(string s) => wnd.Log(s);
 
     private void GetBaseParam(Quik quik, string secCode)
     {
@@ -134,7 +135,8 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             var bestBuy = orderbook.bid[orderbook.bid.Length - 1];
             var bestSell = orderbook.offer[0];
             Console.WriteLine(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity);
-            Log(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity);
+            wnd.Log(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity+ ",  this.LastPrice = " +this.LastPrice.ToString());
+
         } 
     }
 

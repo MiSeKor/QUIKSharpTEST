@@ -57,13 +57,16 @@ namespace DemoTestWPF
         {
             //TextBoxLog.AppendText(str + Environment.NewLine); 
             try
-            {  
-                this.Dispatcher.Invoke(() =>
-                    {
-                        TextBoxLog.AppendText(DateTime.Now.ToString("HH:mm:ss.ff")+" - "+ str + Environment.NewLine);
-                        TextBoxLog.ScrollToLine(TextBoxLog.LineCount - 1); 
-                    });
-
+            {
+                if (Dispatcher.CheckAccess())
+                {
+                    TextBoxLog.AppendText(DateTime.Now.ToString("HH:mm:ss.ff") + " - " + str + Environment.NewLine);
+                    TextBoxLog.ScrollToLine(TextBoxLog.LineCount - 1);
+                }
+                else
+                {
+                    this.Dispatcher.Invoke(() => Log(str));
+                } 
             }
             catch (Exception e)
             {
@@ -768,12 +771,20 @@ namespace DemoTestWPF
 
         private void DataGridTool_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var _selectIndex = DataGridTool.SelectedIndex;
-            Log(_selectIndex.ToString()+" "+ ListTool[DataGridTool.SelectedIndex].SecurityCode
-                + " " + ListTool[DataGridTool.SelectedIndex].LastPrice.ToString()
-                + " " + ListTool[DataGridTool.SelectedIndex].СlientCode);
-            
-            //SC = ListTool[DataGridTool.SelectedIndex].SecurityCode;
+            try
+            {
+                var _selectIndex = DataGridTool.SelectedIndex;
+                if (_selectIndex > 0)
+                    Log(_selectIndex.ToString()
+                    +" "+ ListTool[DataGridTool.SelectedIndex].SecurityCode
+                    + " " + ListTool[DataGridTool.SelectedIndex].LastPrice.ToString()
+                    + " " + ListTool[DataGridTool.SelectedIndex].СlientCode); 
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception); 
+            }
+
         }
 
         private async Task closeallpositionsFunc(Tool tool)
