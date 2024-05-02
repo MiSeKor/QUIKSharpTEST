@@ -148,13 +148,13 @@ namespace DemoTestWPF
             // _quik.Candles.NewCandle += Candles_NewCandle;
             //_quik.Events.OnQuote += Events_OnQuote; 
             //_quik.Events.OnOrder += Events_OnOrder;
-            _quik.Events.OnStopOrder += Events_OnStopOrder;
-            _quik.Events.OnTransReply += Events_OnTransReply;
-            _quik.Events.OnAllTrade += Events_OnAllTrade;
-            _quik.Events.OnTrade += Events_OnTrade; 
-            _quik.Events.OnDepoLimit += Events_OnDepoLimit;
-            _quik.Events.OnMoneyLimit += Events_OnMoneyLimit;
-            _quik.Events.OnParam += Events_OnParam;
+            //_quik.Events.OnStopOrder += Events_OnStopOrder;
+            //_quik.Events.OnTransReply += Events_OnTransReply;
+            // _quik.Events.OnAllTrade += Events_OnAllTrade;
+            // _quik.Events.OnTrade += Events_OnTrade; 
+            // _quik.Events.OnDepoLimit += Events_OnDepoLimit;
+            // _quik.Events.OnMoneyLimit += Events_OnMoneyLimit;
+            // _quik.Events.OnParam += Events_OnParam;
         }
 
         private void Events_OnTrade(Trade trade)
@@ -789,12 +789,12 @@ namespace DemoTestWPF
 
         private async Task closeallpositionsFunc(Tool tool)
         {
-            var KolLot = _quik.Trading.GetDepoLimits(tool.SecurityCode).Result[1].CurrentBalance/tool.Lot;
+            var KolLot = _quik.Trading.GetDepo(tool.СlientCode, tool.FirmID, tool.SecurityCode, tool.AccountID).Result.DepoCurrentBalance / tool.Lot;
             //await Task.Delay(1000);
 
             if (KolLot != 0)
             {
-                if (KolLot!= null && KolLot > 1)
+                if (KolLot!= null && KolLot > 0)
                 {
                     await _quik.Orders.SendMarketOrder(tool.ClassCode, tool.SecurityCode, tool.AccountID, Operation.Sell, (int)KolLot).ConfigureAwait(false);
                 }
@@ -803,14 +803,13 @@ namespace DemoTestWPF
                     await _quik.Orders.SendMarketOrder(tool.ClassCode, tool.SecurityCode, tool.AccountID, Operation.Buy, (int)-KolLot).ConfigureAwait(false);
                 }
             }
-            //await Task.Delay(1000);
-            KillAllOrdersFunc(Sber);
+ 
             Log("закрываетие = "+KolLot.ToString()+" позиций");
         }
 
         private void closeallpositions_Click(object sender, RoutedEventArgs e)
         {
-            closeallpositionsFunc(Sber);
+            closeallpositionsFunc(ListTool[DataGridTool.SelectedIndex]);
         }
 
         protected void OnClosing(ConsoleCancelEventArgs e)

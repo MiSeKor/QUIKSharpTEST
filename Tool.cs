@@ -22,9 +22,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     private readonly char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
     //public MainWindow wnd => (MainWindow)Application.Current.MainWindow;
     MainWindow wnd = (MainWindow)App.Current.MainWindow; // рабочий вариант пользования метода Log()
-    private decimal lastPrice;
-    
-
+    private decimal lastPrice; 
     /// <summary>
     ///     Конструктор класса
     /// </summary>
@@ -83,6 +81,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
                         Lot = Convert.ToInt32(Convert.ToDouble(quik.Trading.GetParamEx(ClassCode, SecurityCode, ParamNames.LOTSIZE).Result.ParamValue.Replace('.', separator)));
                         GuaranteeProviding = 0;
                     }
+                    GetDepoLimit();
                 }
                 else
                 {
@@ -121,6 +120,64 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         else Console.WriteLine(SecurityCode + " Все ПЛОХО");
 
         _quik.Events.OnOrder += Events_OnOrder;
+        _quik.Events.OnStopOrder += Events_OnStopOrder;
+        _quik.Events.OnTransReply += Events_OnTransReply;
+        _quik.Events.OnParam += Events_OnParam;
+        _quik.Events.OnDepoLimit += Events_OnDepoLimit;
+        // _quik.Events.OnMoneyLimit +
+        // _quik.Events.OnAllTrade + 
+        // _quik.Events.OnTrade + 
+    }
+
+    private void Refresh()
+    {
+        wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());
+    }
+
+    private void GetDepoLimit()
+    {
+        Positions = Convert.ToDecimal(_quik.Trading.GetDepo(СlientCode, this.FirmID, this.SecurityCode, this.AccountID).Result.DepoCurrentBalance / this.Lot);
+    }
+
+    private void Events_OnDepoLimit(DepoLimitEx dLimit)
+    {
+        if (dLimit.SecCode == SecurityCode)
+        {
+            GetDepoLimit();
+            Refresh();
+        }
+    }
+
+    private void Events_OnParam(Param par)
+    {
+        if (par.SecCode == SecurityCode)
+        {
+            Refresh();
+        }
+    }
+
+    private void Events_OnTransReply(TransactionReply transReply)
+    {//https://youtu.be/vVehZG3trQ4?si=axTF5vwzTvpA4MMA
+        if (transReply.SecCode == SecurityCode)
+        {
+            if (transReply.Status == 0) wnd.Log("Status " + transReply.Status + " Транзакция отправлена серверу");
+            if (transReply.Status == 1) wnd.Log("Status " + transReply.Status + " Транзакция получена на сервер");
+            if (transReply.Status == 2) wnd.Log("Status " + transReply.Status + " Ошибка при передаче Транзакции");
+            if (transReply.Status == 3)
+            {
+                wnd.Log("Транзакция № - " + transReply.TransID + " Выставлен ордер № " + transReply.OrderNum + " Цена: " + transReply.Price + " Объём: " + transReply.Quantity);
+            }
+            if (transReply.Status > 3)
+            {
+                wnd.Log("ОШИБКА " + transReply.TransID + " Тест ошибки " + transReply.ResultMsg);
+            }
+        } 
+    }
+
+    private void Events_OnStopOrder(StopOrder stopOrder)
+    {
+        if (stopOrder.SecCode == SecurityCode)
+            wnd.Log("Стоп-Ордер № - " + stopOrder.OrderNum + ",  SecCode - " + stopOrder.SecCode +" - "+ stopOrder.Operation + ", TransID - " + stopOrder.TransId + ", State - " + stopOrder.State);
     }
 
     private void Events_OnOrder(Order order)
@@ -130,14 +187,14 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
 
     private void Events_OnQuote(OrderBook orderbook)
     {
-        if (orderbook.sec_code == SecurityCode)
-        {
-            var bestBuy = orderbook.bid[orderbook.bid.Length - 1];
-            var bestSell = orderbook.offer[0];
-            Console.WriteLine(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity);
-            wnd.Log(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity+ ",  this.LastPrice = " +this.LastPrice.ToString());
-
-        } 
+        // if (orderbook.sec_code == SecurityCode)
+        // {
+        //     var bestBuy = orderbook.bid[orderbook.bid.Length - 1];
+        //     var bestSell = orderbook.offer[0];
+        //     Console.WriteLine(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity);
+        //     wnd.Log(orderbook.sec_code + ":  bestBuy - " + bestBuy.price + " = " + bestBuy.quantity + " bestSell - " + bestSell.price + " = " + bestSell.quantity+ ",  this.LastPrice = " +this.LastPrice.ToString());
+        //
+        // } 
     }
 
     private void CandlesOnNewCandle(Candle candle)
@@ -211,6 +268,11 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             return lastPrice;
         }
     }
+
+    /// <summary>
+    ///     Позиция
+    /// </summary>
+    public decimal Positions { get; private set; }
 
     #endregion
 }
