@@ -5,6 +5,7 @@ using System.Security;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Threading;
 using DemoTestWPF;
 using Microsoft.SqlServer.Server;
@@ -22,7 +23,8 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     private readonly char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
     //public MainWindow wnd => (MainWindow)Application.Current.MainWindow;
     MainWindow wnd = (MainWindow)App.Current.MainWindow; // рабочий вариант пользования метода Log()
-    private decimal lastPrice; 
+    private decimal lastPrice;
+
     /// <summary>
     ///     Конструктор класса
     /// </summary>
@@ -129,25 +131,32 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         // _quik.Events.OnTrade + 
     }
 
-    private void Refresh()
+    async Task Refresh()
     {
-        wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());
+        wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());  
     }
-
+     
     private void GetDepoLimit()
     {
-        Positions = Convert.ToDecimal(_quik.Trading.GetDepo(СlientCode, this.FirmID, this.SecurityCode, this.AccountID).Result.DepoCurrentBalance / this.Lot);
+        Positions = Convert.ToDecimal(_quik.Trading.GetDepo(СlientCode, this.FirmID,
+            this.SecurityCode, this.AccountID).Result.DepoCurrentBalance / this.Lot);
+        Refresh();
+        //testMethod();
     }
 
     private void Events_OnDepoLimit(DepoLimitEx dLimit)
     {
         if (dLimit.SecCode == SecurityCode)
         {
-            GetDepoLimit();
-            Refresh();
+            GetDepoLimit(); 
         }
     }
 
+    private void testMethod()
+    {
+       var t = _quik.Trading.GetParamEx(this.ClassCode, this.SecurityCode
+            , ParamNames.R_SETTLEPRICE, 1).Result;
+    }
     private void Events_OnParam(Param par)
     {
         if (par.SecCode == SecurityCode)
@@ -165,11 +174,11 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             if (transReply.Status == 2) wnd.Log("Status " + transReply.Status + " Ошибка при передаче Транзакции");
             if (transReply.Status == 3)
             {
-                wnd.Log("Транзакция № - " + transReply.TransID + " Выставлен ордер № " + transReply.OrderNum + " Цена: " + transReply.Price + " Объём: " + transReply.Quantity);
+                wnd.Log(" Reply ордер № " + transReply.OrderNum + "  TransID - " + transReply.TransID +" Цена: " + transReply.Price + " Объём: " + transReply.Quantity);
             }
             if (transReply.Status > 3)
             {
-                wnd.Log("ОШИБКА " + transReply.TransID + " Тест ошибки " + transReply.ResultMsg);
+                wnd.Log("ОШИБКА " + transReply.TransID + " - " + transReply.ResultMsg);
             }
         } 
     }
@@ -177,12 +186,13 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     private void Events_OnStopOrder(StopOrder stopOrder)
     {
         if (stopOrder.SecCode == SecurityCode)
-            wnd.Log("Стоп-Ордер № - " + stopOrder.OrderNum + ",  SecCode - " + stopOrder.SecCode +" - "+ stopOrder.Operation + ", TransID - " + stopOrder.TransId + ", State - " + stopOrder.State);
+            wnd.Log("Стоп-Ордер № - " + stopOrder.OrderNum + ", TransID - " + stopOrder.TransId + ",  SecCode - " + stopOrder.SecCode +" - "+ stopOrder.Operation +", State - " + stopOrder.State);
     }
 
     private void Events_OnOrder(Order order)
-    { 
-        Console.WriteLine(order.SecCode + "Events_OnOrder"); 
+    {
+        if (order.SecCode == SecurityCode)
+            wnd.Log("Оrder № - " + order.OrderNum + ", TransID - " + order.TransID + ",  SecCode - " + order.SecCode + " - " + order.Operation +", State - " + order.State);
     }
 
     private void Events_OnQuote(OrderBook orderbook)
@@ -199,7 +209,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
 
     private void CandlesOnNewCandle(Candle candle)
     {
-        Console.WriteLine(candle.SecCode + "  "+candle.ToString());
+        //Console.WriteLine(candle.SecCode + "  "+candle.ToString());
     }
 
     #region Свойства
@@ -208,6 +218,24 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     ///     Краткое наименование инструмента (бумаги)
     /// </summary>
     public string Name { get; private set; }
+
+    /// <summary>
+    ///     Цена последней сделки
+    /// </summary>
+    public decimal LastPrice
+    {
+        get
+        {
+            lastPrice = Convert.ToDecimal(_quik.Trading.GetParamEx(ClassCode, SecurityCode, "LAST").Result.ParamValue
+                .Replace('.', separator));
+            return lastPrice;
+        }
+    }
+
+    /// <summary>
+    ///     Позиция
+    /// </summary>
+    public decimal Positions { get; private set; }
 
     /// <summary>
     ///     Код инструмента (бумаги)
@@ -255,24 +283,6 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     ///     для фондовой секции = 0
     /// </summary>
     public double GuaranteeProviding { get; private set; }
-
-    /// <summary>
-    ///     Цена последней сделки
-    /// </summary>
-    public decimal LastPrice
-    {
-        get
-        {
-            lastPrice = Convert.ToDecimal(_quik.Trading.GetParamEx(ClassCode, SecurityCode, "LAST").Result.ParamValue
-                .Replace('.', separator));
-            return lastPrice;
-        }
-    }
-
-    /// <summary>
-    ///     Позиция
-    /// </summary>
-    public decimal Positions { get; private set; }
 
     #endregion
 }

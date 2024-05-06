@@ -17,7 +17,9 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Threading;
 using System.Windows.Documents;
-using System.Windows.Shapes; 
+using System.Windows.Shapes;
+using Label = QuikSharp.DataStructures.Label;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace DemoTestWPF
 {
@@ -47,6 +49,7 @@ namespace DemoTestWPF
         private List<Tool> ListTool = new List<Tool>();
         private Tool _tool;
         private string SC;
+        
 
         public MainWindow()
         {
@@ -157,9 +160,11 @@ namespace DemoTestWPF
             // _quik.Events.OnParam += Events_OnParam;
         }
 
+        
+
         private void Events_OnTrade(Trade trade)
         {//https://youtu.be/vVehZG3trQ4?si=axTF5vwzTvpA4MMA
-            
+               
         }
 
         private void Events_OnTransReply(TransactionReply transReply)
@@ -271,11 +276,8 @@ namespace DemoTestWPF
 
         async void MethodName()
         {
-            await Task.Run(() =>
-            {
-                // какаято задачка});
-            });
-            await Task.Delay(500);
+            // await Task.Run(() => { тут метод/задачка   });
+            // await Task.Delay(500);
         }
 
         private void Candles_NewCandle(Candle candle)
@@ -295,7 +297,7 @@ namespace DemoTestWPF
                     /*if (candle.SecCode == secCode)
                     {
                         string tag = "IND";
-                        var N = _quik.Candles.GetNumCandles(tag).Result;
+                        var N = testMethod()GetNumCandles(tag).Result;
                         TopLine = _quik.Candles.GetCandles(tag, 0, N - 2, 2).Result[0].Close;
                         CentrLine = _quik.Candles.GetCandles(tag, 1, N - 2, 2).Result[0].Close;
                         BottomLine = _quik.Candles.GetCandles(tag, 2, N - 2, 2).Result[0].Close;
@@ -413,11 +415,13 @@ namespace DemoTestWPF
         // КНОПКИ
         private void ButtonBUY_Click(object sender, RoutedEventArgs e)
         {
-            MarketOrder(ListTool[DataGridTool.SelectedIndex], Operation.Buy);
+            if (DataGridTool.SelectedIndex >= 0)
+                MarketOrder(ListTool[DataGridTool.SelectedIndex], Operation.Buy);
         }
         private void ButtonSEll_Click(object sender, RoutedEventArgs e)
         {
-            MarketOrder(ListTool[DataGridTool.SelectedIndex], Operation.Sell);
+            if (DataGridTool.SelectedIndex >= 0)
+                MarketOrder(ListTool[DataGridTool.SelectedIndex], Operation.Sell);
         }
 
         private async Task MarketOrder(Tool tool,Operation operation)
@@ -459,12 +463,14 @@ namespace DemoTestWPF
 
         private void ButtonSellLimit_Click(object sender, RoutedEventArgs e)
         {
-            LimitOrder(ListTool[DataGridTool.SelectedIndex], Operation.Sell);
+            if (DataGridTool.SelectedIndex >= 0)
+                LimitOrder(ListTool[DataGridTool.SelectedIndex], Operation.Sell);
         }
 
         private void ButtonBuyLimit_Click(object sender, RoutedEventArgs e)
         {
-            LimitOrder(ListTool[DataGridTool.SelectedIndex], Operation.Buy);
+            if (DataGridTool.SelectedIndex >= 0)
+                LimitOrder(ListTool[DataGridTool.SelectedIndex], Operation.Buy);
         }
          
         private void ButtonRobot_Click(object sender, RoutedEventArgs e)
@@ -544,189 +550,127 @@ namespace DemoTestWPF
         async Task TakeProfit_StopLoss(Tool tool, decimal price, Operation Bue_Sell, StopOrderType sot)
         {
             https://youtu.be/HWpMYBZCUU4?si=6-wo40ymV2TQ1jF9
-
-            decimal pr1, pr2, pr3; Condition UppLou;
-
-            /*if (Bue_Sell == Operation.Buy)  //если купить то по наименьшей цэне
-            {
-                UppLou = Condition.LessOrEqual;
-                pr = price - (price * (decimal)0.01);   // для ТейкПрофит
-                pr2 = price + (price * (decimal)0.001);  //для СтопЛос стоп цена, остановить убыток для шора
-                pr3 = pr2 + (pr2 * (decimal)0.00002);      // для СтопЛос цена покупки, остановить убыток для шора
-            }
-            else                            //если продать то по наибольшей цэне
-            {
-                UppLou = Condition.MoreOrEqual;
-                pr = price + (price * (decimal)0.01);   // для ТейкПрофит
-                pr2 = price - (price * (decimal)0.001);  // для СтопЛос стоп цена, остановить убыток
-                pr3 = pr2 - (pr2 * (decimal)0.00002);   // для СтопЛос цена продажи, остановить убыток
-            }*/
-
-            if (Bue_Sell == Operation.Buy)  //если купить то по наименьшей цэне
-            {
-                UppLou = Condition.LessOrEqual;
-                pr1 = (tool.LastPrice - (tool.LastPrice * (decimal)0.01));// для ТейкПрофит
-                var pr11 =(pr1 % tool.Step);
-                if (pr11 != 0) pr1 = pr1 - pr11; 
-
-                pr2 = (tool.LastPrice + (tool.LastPrice * (decimal)0.001));  //для СтопЛос стоп цена, остановить убыток для шора
-                var pr22 =(pr2 % tool.Step);
-                if (pr22 != 0) pr2 = pr2 - pr22;
-
-                pr3 = pr2 + (pr2 * (decimal)0.0002);      // для СтопЛос цена покупки, остановить убыток для шора
-                var pr33 = (pr3 % tool.Step);
-                if (pr33 != 0) pr3 = pr3 - pr33;
-            }
-            else                            //если продать то по наибольшей цэне
-            {
-                UppLou = Condition.MoreOrEqual;
-                pr1 = (tool.LastPrice + (tool.LastPrice * (decimal)0.01));// для ТейкПрофит
-                var pr11 = (pr1 % tool.Step);
-                if (pr11 != 0) pr1 = pr1 - pr11;
-
-                pr2 = (tool.LastPrice - (tool.LastPrice * (decimal)0.001));  //для СтопЛос стоп цена, остановить убыток для шора
-                var pr22 = (pr2 % tool.Step);
-                if (pr22 != 0) pr2 = pr2 - pr22;
-
-                pr3 = pr2 - (pr2 * (decimal)0.0002);      // для СтопЛос цена покупки, остановить убыток для шора
-                var pr33 = (pr3 % tool.Step);
-                if (pr33 != 0) pr3 = pr3 - pr33;
-            }
-
-            StopOrder stopOrder = new StopOrder()
-            {
-                ClientCode = tool.СlientCode,
-                Account = tool.AccountID,
-                ClassCode = tool.ClassCode,
-                SecCode = tool.SecurityCode,
-                Offset = (decimal)0.03,//Math.Round(5 * tool.Step, tool.PriceAccuracy),
-                OffsetUnit = OffsetUnits.PERCENTS,
-                Spread = (decimal)0.03,//Math.Round(1 * tool.Step, tool.PriceAccuracy),
-                SpreadUnit = OffsetUnits.PERCENTS,
-                StopOrderType = sot,
-                Condition = UppLou,
-                ConditionPrice = Math.Round(pr1, tool.PriceAccuracy),
-                ConditionPrice2 = Math.Round(pr2, tool.PriceAccuracy), //не нужна для тей-профит
-                Price = Math.Round(pr3, tool.PriceAccuracy),  //не нужна для тей-профит
-                Operation = Bue_Sell,
-                Quantity = 1,
-            };
-
             try
             {
+                decimal pr1, pr2, pr3; Condition UppLou; 
+                if (Bue_Sell == Operation.Buy)  //если купить то по наименьшей цэне
+                {
+                    UppLou = Condition.LessOrEqual;
+                    pr1 = (tool.LastPrice - (tool.LastPrice * (decimal)0.01));// для ТейкПрофит
+                    var pr11 =(pr1 % tool.Step);
+                    if (pr11 != 0) pr1 = pr1 - pr11; 
+
+                    pr2 = (tool.LastPrice + (tool.LastPrice * (decimal)0.001));  //для СтопЛос стоп цена, остановить убыток для шора
+                    var pr22 =(pr2 % tool.Step);
+                    if (pr22 != 0) pr2 = pr2 - pr22;
+
+                    pr3 = pr2 + (pr2 * (decimal)0.0002);      // для СтопЛос цена покупки, остановить убыток для шора
+                    var pr33 = (pr3 % tool.Step);
+                    if (pr33 != 0) pr3 = pr3 - pr33;
+                }
+                else                            //если продать то по наибольшей цэне
+                {
+                    UppLou = Condition.MoreOrEqual;
+                    pr1 = (tool.LastPrice + (tool.LastPrice * (decimal)0.01));// для ТейкПрофит
+                    var pr11 = (pr1 % tool.Step);
+                    if (pr11 != 0) pr1 = pr1 - pr11;
+
+                    pr2 = (tool.LastPrice - (tool.LastPrice * (decimal)0.001));  //для СтопЛос стоп цена, остановить убыток для шора
+                    var pr22 = (pr2 % tool.Step);
+                    if (pr22 != 0) pr2 = pr2 - pr22;
+
+                    pr3 = pr2 - (pr2 * (decimal)0.0002);      // для СтопЛос цена покупки, остановить убыток для шора
+                    var pr33 = (pr3 % tool.Step);
+                    if (pr33 != 0) pr3 = pr3 - pr33;
+                }
+
+                StopOrder stopOrder = new StopOrder()
+                {
+                    ClientCode = tool.СlientCode,
+                    Account = tool.AccountID,
+                    ClassCode = tool.ClassCode,
+                    SecCode = tool.SecurityCode,
+                    Offset = (decimal)0.01,//Math.Round(5 * tool.Step, tool.PriceAccuracy),
+                    OffsetUnit = OffsetUnits.PERCENTS,
+                    Spread = (decimal)0.01,//Math.Round(1 * tool.Step, tool.PriceAccuracy),
+                    SpreadUnit = OffsetUnits.PERCENTS,
+                    StopOrderType = sot,
+                    Condition = UppLou,
+                    ConditionPrice = Math.Round(pr1, tool.PriceAccuracy),
+                    ConditionPrice2 = Math.Round(pr2, tool.PriceAccuracy), //не нужна для тей-профит
+                    Price = Math.Round(pr3, tool.PriceAccuracy),  //не нужна для тей-профит
+                    Operation = Bue_Sell,
+                    Quantity = 1,
+                };
+
                 await _quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
+                AddLabel(stopOrder.Price); 
             }
             catch (Exception exception)
             {
                 Log("Ошибка покупки ... " + exception);
-            }
+            } 
+        }
 
+        private void AddLabel(decimal price)// ни**ра кроме удаления не работает
+        {
+            /*Label label_params = new Label
+            {
+                Text = "какой то текст",
+                Alignment = "LEFT",
+                StrDate = DateTime.Now.ToString("HH:mm:ss.ff"),
+                //StrTime = TimeToString(),
+                Red = "0",
+                Green = "0",
+                Blue = "0",
+                Transparency = "90",
+                FontHeight = "10",
+                TranBackgrnd = "1",
+                YValue = String.Empty,
+                Hint = "texthint"
+            };*/
+            //("какой то текст", "LEFT", "data", "time", 0, 0, 0, 90, 10, price, "hint"); 
+
+            var TAG = "IND";
+            //var t =_quik.Service.AddLabel((double)price, DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString()
+            //    , "hint","", "IND","LEFT",0);
+           var gl =  _quik.Service.AddLabel("IND", price, DateTime.Now.ToLongDateString(), DateTime.Now.ToLongTimeString()
+                ," string text   ", "string imagePath   ", "string alignment   ", "string hint   ",
+             -1,  -1,  -1,  -1, -1, "string fontName   ",  -1);
+           var result = _quik.Service.GetLabelParams(TAG, gl.Id).Result;
+           //_quik.Service.DelAllLabels(TAG);
         }
 
 
         private void TeikProf_StopLos_Sell_Click(object sender, RoutedEventArgs e)
         {
-            TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfitStopLimit);
+            if (DataGridTool.SelectedIndex >= 0)
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfitStopLimit);
         }
         private void Button_TeikProf_StopLos_Buy_Click(object sender, RoutedEventArgs e)
         {
-            TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy, StopOrderType.TakeProfitStopLimit);
+            if (DataGridTool.SelectedIndex >= 0)
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy, StopOrderType.TakeProfitStopLimit);
         }
 
 
         private void ButtonBuyTProf_Click(object sender, RoutedEventArgs e)
         {
-            TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy,StopOrderType.TakeProfit);
+            if (DataGridTool.SelectedIndex >= 0)
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy,StopOrderType.TakeProfit);
             //BuyTakeProfit(tool.LastPrice);
         }
         private void ButtonSell_TPro_Click(object sender, RoutedEventArgs e)
         {
-            TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfit);
+            if (DataGridTool.SelectedIndex >= 0)
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfit);
             //SellTakeProfit(tool.LastPrice);
         }
 
-        /*
-        private async Task BuyTakeProfit(decimal price = 0) // устарела не удалять 
-        {
-            if (price <= 0)
-            {
-                price = tool.LastPrice;
-            }
-
-            StopOrder stopOrder = new StopOrder()
-            {
-                ClientCode = clientCode,
-                Account = tool.AccountID,
-                ClassCode = tool.ClassCode,
-                SecCode = secCode,
-                Offset = 5,
-                OffsetUnit = OffsetUnits.PRICE_UNITS,
-                Spread = 0.1M,
-                SpreadUnit = OffsetUnits.PRICE_UNITS,
-                StopOrderType = StopOrderType.TakeProfit,
-                Condition = Condition.LessOrEqual,
-                ConditionPrice = Math.Round(price + (price * (decimal)0.02), tool.PriceAccuracy),
-                ConditionPrice2 = Math.Round(price + (price * (decimal)0.02), tool.PriceAccuracy), //не нужна для тей-профит
-                Price = Math.Round(price, tool.PriceAccuracy),  //не нужна для тей-профит
-                Operation = Operation.Buy,
-                Quantity = 1,
-            };
-
-            try
-            {
-                await _quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                Log("Ошибка покупки ... " + exception);
-            }
-
-        }
-        private async Task SellTakeProfit(decimal price = 0)
-        {
-            //decimal pricein = Math.Round(tool.LastPrice, tool.PriceAccuracy);
-            if (price <= 0)
-            {
-                price = tool.LastPrice;
-            }
-
-            //price = Math.Round(price, tool.PriceAccuracy);
-            
-            StopOrder stopOrder = new StopOrder()
-            {
-                Account = tool.AccountID,
-                ClassCode = tool.ClassCode,
-                ClientCode = clientCode,
-                SecCode = secCode,
-                Offset = 5,
-                OffsetUnit = OffsetUnits.PRICE_UNITS,
-                Spread = 0.1M,
-                SpreadUnit = OffsetUnits.PRICE_UNITS,
-                StopOrderType = StopOrderType.TakeProfit,
-                Condition = Condition.MoreOrEqual,
-                ConditionPrice = Math.Round(price - (price * (decimal)0.02), tool.PriceAccuracy),
-                ConditionPrice2 = Math.Round(price - (price * (decimal)0.02), tool.PriceAccuracy), //не нужна для тей-профит
-                Price = Math.Round(price, tool.PriceAccuracy),  //не нужна для тей-профит
-                Operation = Operation.Sell,
-                Quantity = 1
-            };
-            //_quik.Orders.SendLimitOrder (classCode, secCode, tool.AccountID, Operation.Sell, pricein, 1, ExecutionCondition.PUT_IN_QUEUE, СlientCode).ConfigureAwait(false);
-            try
-            {
-                await _quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
-                //await Task.Delay(1000);
-                //Log("Тэйк-Профит на продажу " + "StopCena - " + stopOrder.ConditionPrice + " Cena - " + stopOrder.Price);
-            }
-            catch (Exception exception)
-            {
-                Log("Ошибка продажи ... " + exception);
-            }
-        } // устарела не удалять
-        */
-
         private void KillAllOrders_Click(object sender, RoutedEventArgs e)
         {
-            KillAllOrdersFunc(ListTool[DataGridTool.SelectedIndex]);
+            if (DataGridTool.SelectedIndex >= 0)
+                KillAllOrdersFunc(ListTool[DataGridTool.SelectedIndex]);
         }
 
         private async Task KillAllOrdersFunc(Tool tool)
@@ -774,7 +718,7 @@ namespace DemoTestWPF
             try
             {
                 var _selectIndex = DataGridTool.SelectedIndex;
-                if (_selectIndex > 0)
+                if (_selectIndex != null || _selectIndex >= 0)
                     Log(_selectIndex.ToString()
                     +" "+ ListTool[DataGridTool.SelectedIndex].SecurityCode
                     + " " + ListTool[DataGridTool.SelectedIndex].LastPrice.ToString()
@@ -809,7 +753,8 @@ namespace DemoTestWPF
 
         private void closeallpositions_Click(object sender, RoutedEventArgs e)
         {
-            closeallpositionsFunc(ListTool[DataGridTool.SelectedIndex]);
+            if (DataGridTool.SelectedIndex >= 0)
+                closeallpositionsFunc(ListTool[DataGridTool.SelectedIndex]);
         }
 
         protected void OnClosing(ConsoleCancelEventArgs e)
@@ -817,7 +762,7 @@ namespace DemoTestWPF
             if (_quik == null)
             {
                 _quik.StopService();
-                // base.OnClosing();
+                 this.OnClosing(e);
             }
         }
 
@@ -832,8 +777,8 @@ namespace DemoTestWPF
             // listMyTicks.Add(SBER);
             // listMyTicks.Add(VTBR);
             // listMyTicks.Add(RIM4);
-            DataGridTool.ItemsSource = listMyTicks;
-            DataGridTool.Items.Refresh();
+            //DataGridTool.ItemsSource = listMyTicks;
+            //DataGridTool.Items.Refresh();
         }
 
     }
