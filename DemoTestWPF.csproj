@@ -56,7 +56,7 @@
     </Reference>
     <Reference Include="QUIKSharp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=eb70e0fec970faf8, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\QUIKSharp-master\Examples\AutoConnector\bin\Release\QUIKSharp.dll</HintPath>
+      <HintPath>G:\С# Progect\QUIKSharp-master\Examples\AutoConnector\bin\Release\QUIKSharp.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">

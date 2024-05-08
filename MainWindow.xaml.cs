@@ -604,7 +604,6 @@ namespace DemoTestWPF
                 };
 
                 await _quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
-                AddLabel(stopOrder.Price); 
             }
             catch (Exception exception)
             {
