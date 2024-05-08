@@ -131,7 +131,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         // _quik.Events.OnTrade + 
     }
 
-    async Task Refresh()
+    public async Task Refresh()
     {
         wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());  
     }

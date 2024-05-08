@@ -730,6 +730,12 @@ namespace DemoTestWPF
 
         }
 
+        private void DataGridTool_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Window2 WndStrateg = new Window2();
+            WndStrateg.Show();
+        }
+
         private async Task closeallpositionsFunc(Tool tool)
         {
             var KolLot = _quik.Trading.GetDepo(tool.СlientCode, tool.FirmID, tool.SecurityCode, tool.AccountID).Result.DepoCurrentBalance / tool.Lot;
@@ -763,6 +769,10 @@ namespace DemoTestWPF
                 _quik.StopService();
                  this.OnClosing(e);
             }
+        }
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Window2.Create_Strategy(Operation.Buy, MainWindow.ListTool[DataGridTool.SelectedIndex],1,5,1,1);
         }
 
         private void DataGrid_Loaded(object sender, RoutedEventArgs e)
