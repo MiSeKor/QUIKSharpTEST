@@ -72,5 +72,19 @@ namespace DemoTestWPF
         /// Количество
         /// </summary>
         public int Quantity { get; set; }
+
+        public void Create_Strategy(Operation BuySel, decimal price, int quantity, int level, int step, decimal cels)
+        { 
+            Strategy strategy = new Strategy()
+            {
+                Operation = BuySel,
+                Price = price,
+                Quantity = quantity,
+                Levels = level,
+                Step = step,
+                Cels = cels
+            };
+             
+        }
     } 
 }

@@ -27,28 +27,13 @@ namespace DemoTestWPF
         }
 
         
-        public void Create_Strategy(Operation BuySel, decimal price, int quantity, int level, int step, decimal cels)
-        {
-            Operation o;
-            if (BuySel != null)
-            {
-                Strategy strategy = new Strategy()
-                {
-                    Operation = BuySel,
-                    Price = Convert.ToDecimal(TextBoxprice),
-                    Quantity = Convert.ToInt32(TextBoxQuantity),
-                    Levels = Convert.ToInt32(TextBoxLevel),
-                    Step = Convert.ToInt32(TextBoxStep),
-                    Cels = Convert.ToDecimal(TextBoxCels)
-                };
-            } 
-        }
+
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
  
       
-               Create_Strategy(Operation.Buy, wnds.ListTool[wnds.DataGridTool.SelectedIndex].LastPrice, 1, 5, 1, 1);
+               //Create_Strategy(Operation.Buy, wnds.ListTool[wnds.DataGridTool.SelectedIndex].LastPrice, 1, 5, 1, 1);
             
         }
     }
