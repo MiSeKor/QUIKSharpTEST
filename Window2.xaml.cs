@@ -20,11 +20,13 @@ namespace DemoTestWPF
     /// </summary>
     public partial class Window2 : Window
     {
+        //MainWindow wnds = (MainWindow)App.Current.MainWindow;
         public Window2()
         {
-            InitializeComponent();
+            InitializeComponent();  
         }
 
+        
         public void Create_Strategy(Operation BuySel, decimal price, int quantity, int level, int step, decimal cels)
         {
             Operation o;
@@ -39,8 +41,15 @@ namespace DemoTestWPF
                     Step = Convert.ToInt32(TextBoxStep),
                     Cels = Convert.ToDecimal(TextBoxCels)
                 };
-            }
+            } 
+        }
 
-        } 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+ 
+      
+               Create_Strategy(Operation.Buy, wnds.ListTool[wnds.DataGridTool.SelectedIndex].LastPrice, 1, 5, 1, 1);
+            
+        }
     }
 }

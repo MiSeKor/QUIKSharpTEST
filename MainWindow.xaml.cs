@@ -46,14 +46,15 @@ namespace DemoTestWPF
         private MyTick VTBR;
         private MyTick RIM4;
         private List<MyTick> listMyTicks = new List<MyTick>();
-        private List<Tool> ListTool = new List<Tool>();
+        public List<Tool> ListTool = new List<Tool>();
         private Tool _tool;
         private string SC;
-        
 
+        //MainWindow wnds = (MainWindow)App.Current.MainWindow;
         public MainWindow()
         {
             InitializeComponent();
+            Window2 WndStrateg = new Window2();
         }
          
         public void Log(string str)
@@ -732,9 +733,10 @@ namespace DemoTestWPF
 
         private void DataGridTool_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Window2 WndStrateg = new Window2();
-            WndStrateg.Show();
+            
+           
         }
+
 
         private async Task closeallpositionsFunc(Tool tool)
         {
@@ -770,10 +772,7 @@ namespace DemoTestWPF
                  this.OnClosing(e);
             }
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            Window2.Create_Strategy(Operation.Buy, MainWindow.ListTool[DataGridTool.SelectedIndex],1,5,1,1);
-        }
+
 
         private void DataGrid_Loaded(object sender, RoutedEventArgs e)
         {

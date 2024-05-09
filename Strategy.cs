@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DemoTestWPF
 {
-    internal class Strategy
+    public class Strategy
     {
         /// <summary>
         /// Наименование стратегии
