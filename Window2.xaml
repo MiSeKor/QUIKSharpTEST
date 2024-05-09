@@ -6,14 +6,25 @@
 
         xmlns:local="clr-namespace:DemoTestWPF"
         mc:Ignorable="d"
-        Title="Window2" Height="50" Width="470">
-    <Grid Margin="0,0,0,-6">
-        <TextBox x:Name="TextBoxBuySel" HorizontalAlignment="Left" Margin="10,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="60"/>
-        <TextBox x:Name="TextBoxprice" HorizontalAlignment="Left" Margin="75,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="60"/>
-        <TextBox x:Name="TextBoxQuantity" HorizontalAlignment="Left" Margin="140,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="60"/>
-        <TextBox x:Name="TextBoxLevel" HorizontalAlignment="Left" Margin="205,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="60"/>
-        <TextBox x:Name="TextBoxStep" HorizontalAlignment="Left" Margin="270,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="60"/>
-        <TextBox x:Name="TextBoxCels" HorizontalAlignment="Left" Margin="335,10,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="60"/>
-        <Button x:Name="Strategy" Content="Button" HorizontalAlignment="Left" Margin="400,8,0,0" VerticalAlignment="Top" Width="60" Click="Button_Click"/>
+        Title="Window2" Height="130" Width="555" WindowStyle="ToolWindow" Background="#FFA5F5B8">
+    <Grid RenderTransformOrigin="0.5,0.712" Margin="0,0,0,-6">
+        <TextBox x:Name="TextBoxprice" HorizontalAlignment="Left" Margin="145,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center" Width="90" TextAlignment="Center" FontSize="14"/>
+        <TextBox x:Name="TextBoxQuantity" HorizontalAlignment="Left" Margin="240,0,0,0" TextWrapping="Wrap" Text="5" VerticalAlignment="Center" Width="60" FontSize="14"/>
+        <TextBox x:Name="TextBoxLevel" HorizontalAlignment="Left" Margin="305,0,0,0" TextWrapping="Wrap" Text="5" VerticalAlignment="Center" Width="35" FontSize="14"/>
+        <TextBox x:Name="TextBoxStep" HorizontalAlignment="Left" Margin="345,0,0,0" TextWrapping="Wrap" Text="0,05" VerticalAlignment="Center" Width="60" TextChanged="TextBoxStep_TextChanged" PreviewKeyUp="TextBoxStep_PreviewKeyUp" FontSize="14"/>
+        <TextBox x:Name="TextBoxCels" HorizontalAlignment="Left" Margin="410,0,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Center" Width="60" FontSize="14"/>
+        <TextBox x:Name="TextBoxName" IsEnabled="False" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="60" FontSize="14"/>
+        <ComboBox x:Name="ComboBoxBuySel" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="60" Text="+" SelectedIndex="0">
+            <ComboBoxItem Content="Buy" IsSelected="True"/>
+            <ComboBoxItem Content="Sel"/>
+        </ComboBox>
+        <Button x:Name="ButtonStrategy" HorizontalAlignment="Left" Margin="475,0,0,0" VerticalAlignment="Center" Width="60" Click="ButtonStrategy_Click_1" Content="STOP"/>
+        <Label Content="Tool" HorizontalAlignment="Left" Height="28" Margin="10,6,0,0" VerticalAlignment="Top" Width="60" IsEnabled="False" HorizontalContentAlignment="Center" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Price" HorizontalAlignment="Left" Height="28" Margin="160,6,0,0" VerticalAlignment="Top" Width="60" IsEnabled="False" HorizontalContentAlignment="Center" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Quantity" HorizontalAlignment="Left" Height="28" Margin="240,6,0,0" VerticalAlignment="Top" Width="60" IsEnabled="False" HorizontalContentAlignment="Center" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Level" HorizontalAlignment="Left" Height="28" Margin="305,6,0,0" VerticalAlignment="Top" Width="40" IsEnabled="False" HorizontalContentAlignment="Center" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Step" HorizontalAlignment="Left" Height="28" Margin="345,6,0,0" VerticalAlignment="Top" Width="60" IsEnabled="False" HorizontalContentAlignment="Center" FontSize="14" FontWeight="Bold"/>
+        <Label Content="Cels%" HorizontalAlignment="Left" Height="28" Margin="410,6,0,0" VerticalAlignment="Top" Width="60" IsEnabled="False" HorizontalContentAlignment="Center" FontSize="14" FontWeight="Bold"/>
+
     </Grid>
 </Window>

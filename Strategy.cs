@@ -1,14 +1,19 @@
-﻿using QuikSharp.DataStructures;
+﻿using QuikSharp;
+using QuikSharp.DataStructures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DemoTestWPF
-{
+{ 
     public class Strategy
     {
+        MainWindow wnd = (MainWindow)App.Current.MainWindow;
+        
+
         /// <summary>
         /// Наименование стратегии
         /// </summary>
@@ -47,7 +52,7 @@ namespace DemoTestWPF
         /// <summary>
         /// Шаг сетки
         /// </summary>
-        public int Step { get; set; }
+        public decimal Step { get; set; }
 
         /// <summary>
         /// Цель
@@ -73,18 +78,32 @@ namespace DemoTestWPF
         /// </summary>
         public int Quantity { get; set; }
 
-        public void Create_Strategy(Operation BuySel, decimal price, int quantity, int level, int step, decimal cels)
-        { 
+        public Strategy Create_Strategy(string name, string BuySel, string price, string quantity
+            , string level, string step, string cels)
+        {
+            Operation op; string stp;
+            if (BuySel.ToString() == "Buy")
+            {
+                op = Operation.Buy;
+            } else
+            {
+                op = Operation.Sell;
+            }
+
+         
+            stp = step.Replace(".", ",");
+            
             Strategy strategy = new Strategy()
             {
-                Operation = BuySel,
-                Price = price,
-                Quantity = quantity,
-                Levels = level,
-                Step = step,
-                Cels = cels
+                Name = name,
+                Operation = Operation.Buy,
+                Price = Convert.ToDecimal(price),
+                Quantity = Convert.ToInt32(quantity),
+                Levels = Convert.ToInt32(level),
+                Step = Convert.ToDecimal(stp),
+                Cels = Convert.ToDecimal(cels)
             };
-             
-        }
+            return strategy;
+        } 
     } 
 }
