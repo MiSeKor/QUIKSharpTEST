@@ -78,6 +78,11 @@ namespace DemoTestWPF
         /// </summary>
         public int Quantity { get; set; }
 
+        /// <summary>
+        /// Лист Стоп-Ордеров
+        /// </summary>
+        public List<long> _ListTrId { get; set; } 
+
         public Strategy Create_Strategy(Tool tool, string BuySel, string price, string quantity
             , string level, string step, string cels)
         {

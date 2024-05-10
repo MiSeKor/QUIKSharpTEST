@@ -549,7 +549,7 @@ namespace DemoTestWPF
             }
 
         }
-        public async Task TakeProfit_StopLoss(Tool tool, int quty, decimal price, Operation Bue_Sell, StopOrderType sot)
+        async Task TakeProfit_StopLoss(Tool tool, int quty, decimal price, Operation Bue_Sell, StopOrderType sot)
         {
             https://youtu.be/HWpMYBZCUU4?si=6-wo40ymV2TQ1jF9
             try
@@ -592,10 +592,10 @@ namespace DemoTestWPF
                     Account = tool.AccountID,
                     ClassCode = tool.ClassCode,
                     SecCode = tool.SecurityCode,
-                    Offset = (decimal)0.01,//Math.Round(5 * tool.Step, tool.PriceAccuracy),
-                    OffsetUnit = OffsetUnits.PERCENTS,
-                    Spread = (decimal)0.01,//Math.Round(1 * tool.Step, tool.PriceAccuracy),
-                    SpreadUnit = OffsetUnits.PERCENTS,
+                    Offset = 0, 
+                    OffsetUnit = OffsetUnits.PRICE_UNITS,
+                    Spread = 0, 
+                    SpreadUnit = OffsetUnits.PRICE_UNITS,
                     StopOrderType = sot,
                     Condition = UppLou,
                     ConditionPrice = Math.Round(pr1, tool.PriceAccuracy),
@@ -676,27 +676,31 @@ namespace DemoTestWPF
 
         public async Task KillAllOrdersFunc(Tool tool)
         {
-            var orders = _quik.Orders.GetOrders(tool.ClassCode, tool.SecurityCode).Result;
-            //await Task.Delay(1000);
-            foreach (var order in orders)
+            if (tool != null)
             {
-                if (order.State == State.Active)
+                var orders = _quik.Orders.GetOrders(tool.ClassCode, tool.SecurityCode).Result;
+                //await Task.Delay(1000);
+                foreach (var order in orders)
                 {
-                    await _quik.Orders.KillOrder(order).ConfigureAwait(true);
+                    if (order.State == State.Active)
+                    {
+                        await _quik.Orders.KillOrder(order).ConfigureAwait(true);
+                    }
                 }
-            }
-              
-            var Stoporders = _quik.StopOrders.GetStopOrders(tool.ClassCode, tool.SecurityCode).Result;
-            //await Task.Delay(1000);
-            foreach (var stoporder in Stoporders)
-            {
-                if (stoporder.State == State.Active)
+                  
+                var Stoporders = _quik.StopOrders.GetStopOrders(tool.ClassCode, tool.SecurityCode).Result;
+                //await Task.Delay(1000);
+                foreach (var stoporder in Stoporders)
                 {
-                   await _quik.StopOrders.KillStopOrder(stoporder).ConfigureAwait(false);
+                    if (stoporder.State == State.Active)
+                    {
+                       await _quik.StopOrders.KillStopOrder(stoporder).ConfigureAwait(false);
+                    }
                 }
+
+                if (orders.Count!= 0 && Stoporders.Count != 0)Log("Kill All Orders");
             }
 
-            Log("Kill All Orders");
         }
 
         private void ButtonAddTool_Click(object sender, RoutedEventArgs e)

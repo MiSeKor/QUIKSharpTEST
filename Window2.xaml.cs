@@ -1,5 +1,6 @@
 ﻿using QuikSharp;
 using QuikSharp.DataStructures;
+using QuikSharp.DataStructures.Transaction;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,8 @@ namespace DemoTestWPF
     {
         MainWindow wnd = (MainWindow)App.Current.MainWindow;
         Strategy strategy = new Strategy();
+        private Strategy S;
+        object locker = new object();
         Tool GetTool ; 
         public Window2()
         {
@@ -74,81 +77,124 @@ namespace DemoTestWPF
             if (ButtonStrategy.Content.ToString() == "STOP")
             {
                 
-               var S = strategy.Create_Strategy(GetTool
+                 strategy.Create_Strategy(GetTool
                     , ComboBoxBuySel.SelectedValue.ToString()
                     , TextBoxprice.Text, TextBoxQuantity.Text, TextBoxLevel.Text
                     , TextBoxStep.Text, TextBoxCels.Text);
-                strategy.IsActive = true;
+                 strategy.IsActive = true;
                 ButtonStrategy.Content = "RUN";
                 ButtonStrategy.Background = Brushes.Aqua;
-                 runStrategyTask(S);
-
+                 runStrategyTask(strategy);
+                 S = strategy; 
             }
             else// if (ButtonStrategy.Content == "RUN")
             {
-                wnd.KillAllOrdersFunc(wnd.ListTool[wnd.DataGridTool.SelectedIndex]);
+                wnd.KillAllOrdersFunc(GetTool);
                 strategy.IsActive = false;
                 ButtonStrategy.Content = "STOP";
                 ButtonStrategy.Background = Brushes.Crimson;
-            
             }
-
-            
         }
-        async Task runStrategyTask(Strategy strategy)
+
+        //var condition = order.Operation == Operation.Sell ? Condition.MoreOrEqual : Condition.LessOrEqual;
+        // private void UpdateLabelStrategy()
+        // {
+        //     string content = strategy.IsActive ? "Активна" : "Неактивна";
+        //
+        //     Action action = () => LabelStrategyStatus.Content = content;
+        //     Dispatcher.Invoke(action);
+        // }
+        private async Task<long> CreateStopOrder(decimal pr, Strategy strategy)
         {
-            var flag = true;
-            decimal otstup = 0;
-            while (IsActive)
-            {  
-                 decimal pr = strategy.Price;
-                //Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
-                if (strategy.Operation == Operation.Buy)
-                {
-
-                    for (int n = 0; n < strategy.Levels; n++)
-                    {
-                        StopOrder stopOrder = new StopOrder()
-                        {
-                            ClientCode = strategy.StrTool.СlientCode,
-                            Account = strategy.StrTool.AccountID,
-                            ClassCode = strategy.StrTool.ClassCode,
-                            SecCode = strategy.StrTool.SecurityCode,
-                            Offset = (decimal)0.01,//Math.Round(5 * tool.Step, tool.PriceAccuracy),
-                            OffsetUnit = OffsetUnits.PERCENTS,
-                            Spread = (decimal)0.01,//Math.Round(1 * tool.Step, tool.PriceAccuracy),
-                            SpreadUnit = OffsetUnits.PERCENTS,
-                            StopOrderType = StopOrderType.TakeProfit,
-                            Condition = Condition.LessOrEqual,
-                            ConditionPrice = Math.Round(pr, strategy.StrTool.PriceAccuracy),
-                            Operation = strategy.Operation,
-                            Quantity = strategy.Quantity,
-                        };
-
-                        await wnd._quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
-                        // await Task.Run(() => { тут метод/задачка   });
-                        // await Task.Delay(500);
-                        //wnd.Dispatcher.Invoke(new Action(() => {}));
-                        //await Task.Run(() => { }); 
- 
-                        //     await Task.Run(() => {  });
-                        if (flag)
-                        {
-                            otstup = pr * strategy.Step ;
-                            var otstup1 = (otstup % strategy.StrTool.Step);
-                            if (otstup1 != 0) otstup = otstup - otstup1; 
-                            flag = false;
-                        }
-
-                        pr = pr - otstup;
-                        // var pr11 = (pr % strategy.Step);
-                        // if (pr11 != 0) pr = pr - pr11;
-                        //pr = pr - strategy.Step;
-                        //WndStrateg.Title = pr.ToString();
-                         await Task.Delay(200);
-                    };
-                }
-            }
+            StopOrder stopOrder = new StopOrder()
+            {
+                ClientCode = strategy.StrTool.СlientCode,
+                Account = strategy.StrTool.AccountID,
+                ClassCode = strategy.StrTool.ClassCode,
+                SecCode = strategy.StrTool.SecurityCode,
+                Offset = 0,
+                OffsetUnit = OffsetUnits.PRICE_UNITS,
+                Spread = 0,
+                SpreadUnit = OffsetUnits.PRICE_UNITS,
+                StopOrderType = StopOrderType.TakeProfit,
+                Condition = Condition.LessOrEqual,
+                ConditionPrice = Math.Round(pr, strategy.StrTool.PriceAccuracy),
+                Operation = strategy.Operation,
+                Quantity = strategy.Quantity,
+            };
+            var so = await wnd._quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
+            return so;
         }
+
+        private async Task<List<long>> SetUpNetwork(Strategy strategy)
+        {
+            List<long> ListTrId = new List<long>();
+            bool flag = true;
+            decimal otstup = 0;
+            decimal pr = strategy.Price;
+            for (int n = 0; n < strategy.Levels; n++)
+            {
+                //Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
+                // await Task.Run(() => { тут метод/задачка   });
+                // await Task.Delay(500);
+                //wnd.Dispatcher.Invoke(new Action(() => {}));
+                //await Task.Run(() => { });  
+                ListTrId.Add(CreateStopOrder(pr, strategy).Result);
+                //     await Task.Run(() => {  });
+                if (flag)
+                {
+                    otstup = pr * strategy.Step;
+                    var otstup1 = (otstup % strategy.StrTool.Step);
+                    if (otstup1 != 0) otstup = otstup - otstup1;
+                    flag = false;
+                }
+
+                pr = pr - otstup;
+                // var pr11 = (pr % strategy.Step);
+                // if (pr11 != 0) pr = pr - pr11;
+                //pr = pr - strategy.Step;
+                //WndStrateg.Title = pr.ToString();
+                //await Task.Delay(200);
+            }
+
+            return ListTrId;
+        }
+
+        public async Task<StopOrder> UpDatStopOrd(StopOrder stopOrder)
+        {
+            return stopOrder;
+        }
+
+        private async Task runStrategyTask(Strategy strategy)
+        { 
+            if (strategy.Operation == Operation.Buy)
+            {
+                strategy._ListTrId = SetUpNetwork(strategy).Result;
+
+               while (strategy.IsActive)
+               {
+                   var listStopOrders = wnd._quik.StopOrders.GetStopOrders().Result;
+
+                   if (listStopOrders.Count > 0 || listStopOrders.Count != strategy._ListTrId.Count)
+                       foreach (StopOrder stopOrder in listStopOrders)
+                       {
+                           if (stopOrder.TransId != 0 || stopOrder.State == State.Completed)
+                           {
+                               //CreateStopOrder(stopOrder.Price, strategy);
+                               await Task.Delay(2000);
+                            }
+                       }
+               }
+            }
+
+
+        }
+
+        private void WndStrateg_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            wnd.KillAllOrdersFunc(GetTool);
+            strategy.IsActive = false;
+        }
+ 
     }
 }
