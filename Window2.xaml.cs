@@ -25,7 +25,7 @@ namespace DemoTestWPF
     {
         MainWindow wnd = (MainWindow)App.Current.MainWindow;
         Strategy strategy = new Strategy();
-        Tool GetTool; 
+        Tool GetTool ; 
         public Window2()
         {
             InitializeComponent();  
@@ -62,19 +62,19 @@ namespace DemoTestWPF
  
         private void ButtonStrategy_Click_1(object sender, RoutedEventArgs e)
         {
-            Strategy S;
+             
             foreach (var t in wnd.ListTool)
             {
-                if (t.Name == TextBoxName.Text)
+                if (t.SecurityCode == TextBoxSecCode.Text)
                 {
                     GetTool = t;
-                }
+                } 
             }
 
             if (ButtonStrategy.Content.ToString() == "STOP")
             {
-                WndStrateg.Title = ComboBoxBuySel.SelectedValue.ToString();
-                S = strategy.Create_Strategy(GetTool
+                
+               var S = strategy.Create_Strategy(GetTool
                     , ComboBoxBuySel.SelectedValue.ToString()
                     , TextBoxprice.Text, TextBoxQuantity.Text, TextBoxLevel.Text
                     , TextBoxStep.Text, TextBoxCels.Text);
@@ -97,10 +97,11 @@ namespace DemoTestWPF
         }
         async Task runStrategyTask(Strategy strategy)
         {
-            
+            var flag = true;
+            decimal otstup = 0;
             while (IsActive)
             {  
-                var pr = strategy.Price;
+                 decimal pr = strategy.Price;
                 //Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
                 if (strategy.Operation == Operation.Buy)
                 {
@@ -131,13 +132,20 @@ namespace DemoTestWPF
                         //await Task.Run(() => { }); 
  
                         //     await Task.Run(() => {  });
+                        if (flag)
+                        {
+                            otstup = pr * strategy.Step ;
+                            var otstup1 = (otstup % strategy.StrTool.Step);
+                            if (otstup1 != 0) otstup = otstup - otstup1; 
+                            flag = false;
+                        }
 
-                        pr = (pr - (pr * strategy.Step)); 
-                        var pr11 = (pr % strategy.Step);
-                        if (pr11 != 0) pr = pr - pr11;
+                        pr = pr - otstup;
+                        // var pr11 = (pr % strategy.Step);
+                        // if (pr11 != 0) pr = pr - pr11;
                         //pr = pr - strategy.Step;
-
-                        //await Task.Delay(200);
+                        //WndStrateg.Title = pr.ToString();
+                         await Task.Delay(200);
                     };
                 }
             }

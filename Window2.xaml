@@ -13,7 +13,7 @@
         <TextBox x:Name="TextBoxLevel" HorizontalAlignment="Left" Margin="305,0,0,0" TextWrapping="Wrap" Text="5" VerticalAlignment="Center" Width="35" FontSize="14"/>
         <TextBox x:Name="TextBoxStep" HorizontalAlignment="Left" Margin="345,0,0,0" TextWrapping="Wrap" Text="0,05" VerticalAlignment="Center" Width="60" TextChanged="TextBoxStep_TextChanged" PreviewKeyUp="TextBoxStep_PreviewKeyUp" FontSize="14"/>
         <TextBox x:Name="TextBoxCels" HorizontalAlignment="Left" Margin="410,0,0,0" TextWrapping="Wrap" Text="1" VerticalAlignment="Center" Width="60" FontSize="14"/>
-        <TextBox x:Name="TextBoxName" IsEnabled="False" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="60" FontSize="14"/>
+        <TextBox x:Name="TextBoxSecCode" IsEnabled="False" HorizontalAlignment="Left" Margin="10,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="60" FontSize="14"/>
         <ComboBox x:Name="ComboBoxBuySel" HorizontalAlignment="Left" Margin="80,0,0,0" VerticalAlignment="Center" Width="60" Text="+" SelectedIndex="0">
             <ComboBoxItem Content="Buy" IsSelected="True"/>
             <ComboBoxItem Content="Sel"/>

@@ -736,7 +736,7 @@ namespace DemoTestWPF
         {
 
             var window = new Window2 ();
-            window.TextBoxName.Text = ListTool[DataGridTool.SelectedIndex].SecurityCode;
+            window.TextBoxSecCode.Text = ListTool[DataGridTool.SelectedIndex].SecurityCode;
             window.TextBoxprice.Text = ListTool[DataGridTool.SelectedIndex].LastPrice.ToString();
             window.ShowDialog();
         }
