@@ -17,7 +17,7 @@ namespace DemoTestWPF
         /// <summary>
         /// Наименование стратегии
         /// </summary>
-        public string Name { get; set; }
+        public Tool StrTool { get; set; }
 
         /// <summary>
         /// Признак активности
@@ -78,11 +78,11 @@ namespace DemoTestWPF
         /// </summary>
         public int Quantity { get; set; }
 
-        public Strategy Create_Strategy(string name, string BuySel, string price, string quantity
+        public Strategy Create_Strategy(Tool tool, string BuySel, string price, string quantity
             , string level, string step, string cels)
         {
             Operation op; string stp;
-            if (BuySel.ToString() == "Buy")
+            if (BuySel.ToString().Contains("Buy"))
             {
                 op = Operation.Buy;
             } else
@@ -95,8 +95,8 @@ namespace DemoTestWPF
             
             Strategy strategy = new Strategy()
             {
-                Name = name,
-                Operation = Operation.Buy,
+                StrTool = tool,
+                Operation = op,
                 Price = Convert.ToDecimal(price),
                 Quantity = Convert.ToInt32(quantity),
                 Levels = Convert.ToInt32(level),

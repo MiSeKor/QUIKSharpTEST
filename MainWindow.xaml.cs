@@ -674,7 +674,7 @@ namespace DemoTestWPF
                 KillAllOrdersFunc(ListTool[DataGridTool.SelectedIndex]);
         }
 
-        private async Task KillAllOrdersFunc(Tool tool)
+        public async Task KillAllOrdersFunc(Tool tool)
         {
             var orders = _quik.Orders.GetOrders(tool.ClassCode, tool.SecurityCode).Result;
             //await Task.Delay(1000);

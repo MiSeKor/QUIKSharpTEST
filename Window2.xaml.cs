@@ -25,7 +25,7 @@ namespace DemoTestWPF
     {
         MainWindow wnd = (MainWindow)App.Current.MainWindow;
         Strategy strategy = new Strategy();
-        Tool tl; 
+        Tool GetTool; 
         public Window2()
         {
             InitializeComponent();  
@@ -62,12 +62,19 @@ namespace DemoTestWPF
  
         private void ButtonStrategy_Click_1(object sender, RoutedEventArgs e)
         {
-
+            Strategy S;
+            foreach (var t in wnd.ListTool)
+            {
+                if (t.Name == TextBoxName.Text)
+                {
+                    GetTool = t;
+                }
+            }
 
             if (ButtonStrategy.Content.ToString() == "STOP")
             {
                 WndStrateg.Title = ComboBoxBuySel.SelectedValue.ToString();
-                var S = strategy.Create_Strategy(wnd.ListTool[wnd.DataGridTool.SelectedIndex].Name
+                S = strategy.Create_Strategy(GetTool
                     , ComboBoxBuySel.SelectedValue.ToString()
                     , TextBoxprice.Text, TextBoxQuantity.Text, TextBoxLevel.Text
                     , TextBoxStep.Text, TextBoxCels.Text);
@@ -79,23 +86,20 @@ namespace DemoTestWPF
             }
             else// if (ButtonStrategy.Content == "RUN")
             {
+                wnd.KillAllOrdersFunc(wnd.ListTool[wnd.DataGridTool.SelectedIndex]);
                 strategy.IsActive = false;
                 ButtonStrategy.Content = "STOP";
                 ButtonStrategy.Background = Brushes.Crimson;
-            } 
+            
+            }
+
+            
         }
         async Task runStrategyTask(Strategy strategy)
         {
             
             while (IsActive)
-            { 
-                foreach (var t in wnd.ListTool)
-                {
-                    if (t.Name == strategy.Name)
-                    {
-                        tl = t;
-                    }
-                }
+            {  
                 var pr = strategy.Price;
                 //Application.Current.Dispatcher.Invoke(new Action(() => { wnd.Log(s);}));
                 if (strategy.Operation == Operation.Buy)
@@ -105,17 +109,17 @@ namespace DemoTestWPF
                     {
                         StopOrder stopOrder = new StopOrder()
                         {
-                            ClientCode = tl.СlientCode,
-                            Account = tl.AccountID,
-                            ClassCode = tl.ClassCode,
-                            SecCode = tl.SecurityCode,
+                            ClientCode = strategy.StrTool.СlientCode,
+                            Account = strategy.StrTool.AccountID,
+                            ClassCode = strategy.StrTool.ClassCode,
+                            SecCode = strategy.StrTool.SecurityCode,
                             Offset = (decimal)0.01,//Math.Round(5 * tool.Step, tool.PriceAccuracy),
                             OffsetUnit = OffsetUnits.PERCENTS,
                             Spread = (decimal)0.01,//Math.Round(1 * tool.Step, tool.PriceAccuracy),
                             SpreadUnit = OffsetUnits.PERCENTS,
                             StopOrderType = StopOrderType.TakeProfit,
                             Condition = Condition.LessOrEqual,
-                            ConditionPrice = Math.Round(pr, tl.PriceAccuracy),
+                            ConditionPrice = Math.Round(pr, strategy.StrTool.PriceAccuracy),
                             Operation = strategy.Operation,
                             Quantity = strategy.Quantity,
                         };
@@ -131,8 +135,9 @@ namespace DemoTestWPF
                         pr = (pr - (pr * strategy.Step)); 
                         var pr11 = (pr % strategy.Step);
                         if (pr11 != 0) pr = pr - pr11;
+                        //pr = pr - strategy.Step;
 
-                        await Task.Delay(1000);
+                        //await Task.Delay(200);
                     };
                 }
             }
