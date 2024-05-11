@@ -20,6 +20,8 @@ using System.Windows.Documents;
 using System.Windows.Shapes;
 using Label = QuikSharp.DataStructures.Label;
 using static System.Net.Mime.MediaTypeNames;
+using System.Windows.Controls.Primitives;
+using System.Xml.Linq;
 
 namespace DemoTestWPF
 {
@@ -31,7 +33,7 @@ namespace DemoTestWPF
         //  Уроки C# – Потоки, Thread, Invoke, Action, delegate, Parallel.Invoke – C#
         //          https://youtu.be/vHqHrf914TA?si=uV1qaiKzyIDmCEXf
         //***********************************************************
-        public static Quik _quik; 
+        public Quik _quik; 
         bool RobotRun = false;
         bool RobotRun2 = false;
         bool _isServerConnected;
@@ -46,16 +48,16 @@ namespace DemoTestWPF
         private MyTick VTBR;
         private MyTick RIM4;
         private List<MyTick> listMyTicks = new List<MyTick>();
-        private List<Tool> ListTool = new List<Tool>();
+        public List<Tool> ListTool = new List<Tool>();
         private Tool _tool;
         private string SC;
-        
-
+        //Window2 WndStrateg = new Window2(); 
         public MainWindow()
         {
             InitializeComponent();
-        }
-         
+           
+        }  
+
         public void Log(string str)
         {
             //TextBoxLog.AppendText(str + Environment.NewLine); 
@@ -547,7 +549,7 @@ namespace DemoTestWPF
             }
 
         }
-        async Task TakeProfit_StopLoss(Tool tool, decimal price, Operation Bue_Sell, StopOrderType sot)
+        async Task TakeProfit_StopLoss(Tool tool, int quty, decimal price, Operation Bue_Sell, StopOrderType sot)
         {
             https://youtu.be/HWpMYBZCUU4?si=6-wo40ymV2TQ1jF9
             try
@@ -590,17 +592,17 @@ namespace DemoTestWPF
                     Account = tool.AccountID,
                     ClassCode = tool.ClassCode,
                     SecCode = tool.SecurityCode,
-                    Offset = (decimal)0.01,//Math.Round(5 * tool.Step, tool.PriceAccuracy),
-                    OffsetUnit = OffsetUnits.PERCENTS,
-                    Spread = (decimal)0.01,//Math.Round(1 * tool.Step, tool.PriceAccuracy),
-                    SpreadUnit = OffsetUnits.PERCENTS,
+                    Offset = 0, 
+                    OffsetUnit = OffsetUnits.PRICE_UNITS,
+                    Spread = 0, 
+                    SpreadUnit = OffsetUnits.PRICE_UNITS,
                     StopOrderType = sot,
                     Condition = UppLou,
                     ConditionPrice = Math.Round(pr1, tool.PriceAccuracy),
                     ConditionPrice2 = Math.Round(pr2, tool.PriceAccuracy), //не нужна для тей-профит
                     Price = Math.Round(pr3, tool.PriceAccuracy),  //не нужна для тей-профит
                     Operation = Bue_Sell,
-                    Quantity = 1,
+                    Quantity = quty,
                 };
 
                 await _quik.StopOrders.CreateStopOrder(stopOrder).ConfigureAwait(false);
@@ -644,25 +646,25 @@ namespace DemoTestWPF
         private void TeikProf_StopLos_Sell_Click(object sender, RoutedEventArgs e)
         {
             if (DataGridTool.SelectedIndex >= 0)
-                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfitStopLimit);
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex],1, ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfitStopLimit);
         }
         private void Button_TeikProf_StopLos_Buy_Click(object sender, RoutedEventArgs e)
         {
             if (DataGridTool.SelectedIndex >= 0)
-                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy, StopOrderType.TakeProfitStopLimit);
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], 1, ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy, StopOrderType.TakeProfitStopLimit);
         }
 
 
         private void ButtonBuyTProf_Click(object sender, RoutedEventArgs e)
         {
             if (DataGridTool.SelectedIndex >= 0)
-                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy,StopOrderType.TakeProfit);
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], 1, ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Buy,StopOrderType.TakeProfit);
             //BuyTakeProfit(tool.LastPrice);
         }
         private void ButtonSell_TPro_Click(object sender, RoutedEventArgs e)
         {
             if (DataGridTool.SelectedIndex >= 0)
-                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfit);
+                TakeProfit_StopLoss(ListTool[DataGridTool.SelectedIndex], 1, ListTool[DataGridTool.SelectedIndex].LastPrice, Operation.Sell, StopOrderType.TakeProfit);
             //SellTakeProfit(tool.LastPrice);
         }
 
@@ -672,29 +674,33 @@ namespace DemoTestWPF
                 KillAllOrdersFunc(ListTool[DataGridTool.SelectedIndex]);
         }
 
-        private async Task KillAllOrdersFunc(Tool tool)
+        public async Task KillAllOrdersFunc(Tool tool)
         {
-            var orders = _quik.Orders.GetOrders(tool.ClassCode, tool.SecurityCode).Result;
-            //await Task.Delay(1000);
-            foreach (var order in orders)
+            if (tool != null)
             {
-                if (order.State == State.Active)
+                var orders = _quik.Orders.GetOrders(tool.ClassCode, tool.SecurityCode).Result;
+                //await Task.Delay(1000);
+                foreach (var order in orders)
                 {
-                    await _quik.Orders.KillOrder(order).ConfigureAwait(true);
+                    if (order.State == State.Active)
+                    {
+                        await _quik.Orders.KillOrder(order).ConfigureAwait(true);
+                    }
                 }
-            }
-              
-            var Stoporders = _quik.StopOrders.GetStopOrders(tool.ClassCode, tool.SecurityCode).Result;
-            //await Task.Delay(1000);
-            foreach (var stoporder in Stoporders)
-            {
-                if (stoporder.State == State.Active)
+                  
+                var Stoporders = _quik.StopOrders.GetStopOrders(tool.ClassCode, tool.SecurityCode).Result;
+                //await Task.Delay(1000);
+                foreach (var stoporder in Stoporders)
                 {
-                   await _quik.StopOrders.KillStopOrder(stoporder).ConfigureAwait(false);
+                    if (stoporder.State == State.Active)
+                    {
+                       await _quik.StopOrders.KillStopOrder(stoporder).ConfigureAwait(false);
+                    }
                 }
+
+                if (orders.Count!= 0 && Stoporders.Count != 0)Log("Kill All Orders");
             }
 
-            Log("Kill All Orders");
         }
 
         private void ButtonAddTool_Click(object sender, RoutedEventArgs e)
@@ -730,6 +736,16 @@ namespace DemoTestWPF
 
         }
 
+        private void DataGridTool_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+
+            var window = new Window2 ();
+            window.TextBoxSecCode.Text = ListTool[DataGridTool.SelectedIndex].SecurityCode;
+            window.TextBoxprice.Text = ListTool[DataGridTool.SelectedIndex].LastPrice.ToString();
+            window.ShowDialog();
+        }
+
+
         private async Task closeallpositionsFunc(Tool tool)
         {
             var KolLot = _quik.Trading.GetDepo(tool.СlientCode, tool.FirmID, tool.SecurityCode, tool.AccountID).Result.DepoCurrentBalance / tool.Lot;
@@ -764,6 +780,7 @@ namespace DemoTestWPF
                  this.OnClosing(e);
             }
         }
+
 
         private void DataGrid_Loaded(object sender, RoutedEventArgs e)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security;
@@ -23,6 +24,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     private readonly char separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
     //public MainWindow wnd => (MainWindow)Application.Current.MainWindow;
     MainWindow wnd = (MainWindow)App.Current.MainWindow; // рабочий вариант пользования метода Log()
+    //public Window2 wnd2 => (Window2)Application.Current.MainWindow;
     private decimal lastPrice;
 
     /// <summary>
@@ -131,7 +133,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         // _quik.Events.OnTrade + 
     }
 
-    async Task Refresh()
+    public async Task Refresh()
     {
         wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());  
     }
@@ -186,9 +188,11 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     private void Events_OnStopOrder(StopOrder stopOrder)
     {
         if (stopOrder.SecCode == SecurityCode)
+        {
             wnd.Log("Стоп-Ордер № - " + stopOrder.OrderNum + ", TransID - " + stopOrder.TransId + ",  SecCode - " + stopOrder.SecCode +" - "+ stopOrder.Operation +", State - " + stopOrder.State);
+        }
     }
-
+     
     private void Events_OnOrder(Order order)
     {
         if (order.SecCode == SecurityCode)
