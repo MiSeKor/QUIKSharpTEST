@@ -171,7 +171,7 @@ namespace DemoTestWPF
             {
                 strategy._ListTrId = SetUpNetwork(strategy).Result;
 
-               while (strategy.IsActive)
+               /*while (strategy.IsActive)
                {
                    var listStopOrders = wnd._quik.StopOrders.GetStopOrders().Result;
 
@@ -184,7 +184,7 @@ namespace DemoTestWPF
                                await Task.Delay(2000);
                             }
                        }
-               }
+               }*/
             }
 
 

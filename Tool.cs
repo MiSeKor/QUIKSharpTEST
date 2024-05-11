@@ -14,9 +14,9 @@ using QuikSharp;
 using QuikSharp.DataStructures;
 using QuikSharp.DataStructures.Transaction;
 
-                                //
-                                //  Уроки C# – Синтаксис, Директивы, Классы, Методы – Урок 2 
-                                //***********************************************************
+//
+//  Уроки C# – Синтаксис, Директивы, Классы, Методы – Урок 2 
+//***********************************************************
 public class Tool //: MainWindow // <--наследование https://youtu.be/MZ0og1DNcCg?si=XMlLSsIsn5CqSXCU&t=1920
 {
 
@@ -56,13 +56,13 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
         {
             SecurityCode = secCode;
             ClassCode = quik.Class.GetSecurityClass("SPBFUT,TQBR,TQBS,TQNL,TQLV,TQNE,TQOB,SPBXM,QJSIM", secCode).Result;
-            
+
             var codes = quik.Class.GetClientCodes().Result;
             if (codes.Count == 1)
                 СlientCode = codes[0]; // для демо
             else
                 СlientCode = codes[1]; // для боевого
-                
+
             if (quik != null)
             {
                 if (ClassCode != null && ClassCode != "")
@@ -110,7 +110,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             Debug.WriteLine("Подписались на 1 минуту " + secCode + " ...");
             quik.Candles.NewCandle += CandlesOnNewCandle;
         }
-         
+
         Console.WriteLine("Подписываемся на стакан...");
         quik.OrderBook.Subscribe(ClassCode, SecurityCode).Wait();
         if (quik.OrderBook.IsSubscribed(ClassCode, SecurityCode).Result)
@@ -135,9 +135,9 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
 
     public async Task Refresh()
     {
-        wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());  
+        wnd.Dispatcher.Invoke(() => wnd.DataGridTool.Items.Refresh());
     }
-     
+
     private void GetDepoLimit()
     {
         Positions = Convert.ToDecimal(_quik.Trading.GetDepo(СlientCode, this.FirmID,
@@ -150,14 +150,14 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     {
         if (dLimit.SecCode == SecurityCode)
         {
-            GetDepoLimit(); 
+            GetDepoLimit();
         }
     }
 
     private void testMethod()
     {
-       var t = _quik.Trading.GetParamEx(this.ClassCode, this.SecurityCode
-            , ParamNames.R_SETTLEPRICE, 1).Result;
+        var t = _quik.Trading.GetParamEx(this.ClassCode, this.SecurityCode
+             , ParamNames.R_SETTLEPRICE, 1).Result;
     }
     private void Events_OnParam(Param par)
     {
@@ -176,27 +176,27 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             if (transReply.Status == 2) wnd.Log("Status " + transReply.Status + " Ошибка при передаче Транзакции");
             if (transReply.Status == 3)
             {
-                wnd.Log(" Reply ордер № " + transReply.OrderNum + "  TransID - " + transReply.TransID +" Цена: " + transReply.Price + " Объём: " + transReply.Quantity);
+                wnd.Log(" Reply ордер № " + transReply.OrderNum + "  TransID - " + transReply.TransID + " Цена: " + transReply.Price + " Объём: " + transReply.Quantity);
             }
             if (transReply.Status > 3)
             {
                 wnd.Log("ОШИБКА " + transReply.TransID + " - " + transReply.ResultMsg);
             }
-        } 
+        }
     }
 
     private void Events_OnStopOrder(StopOrder stopOrder)
     {
         if (stopOrder.SecCode == SecurityCode)
         {
-            wnd.Log("Стоп-Ордер № - " + stopOrder.OrderNum + ", TransID - " + stopOrder.TransId + ",  SecCode - " + stopOrder.SecCode +" - "+ stopOrder.Operation +", State - " + stopOrder.State);
+            wnd.Log("Стоп-Ордер № - " + stopOrder.OrderNum + ", TransID - " + stopOrder.TransId + ",  SecCode - " + stopOrder.SecCode + " - " + stopOrder.Operation + ", State - " + stopOrder.State);
         }
     }
-     
+
     private void Events_OnOrder(Order order)
     {
         if (order.SecCode == SecurityCode)
-            wnd.Log("Оrder № - " + order.OrderNum + ", TransID - " + order.TransID + ",  SecCode - " + order.SecCode + " - " + order.Operation +", State - " + order.State);
+            wnd.Log("Оrder № - " + order.OrderNum + ", TransID - " + order.TransID + ",  SecCode - " + order.SecCode + " - " + order.Operation + ", State - " + order.State);
     }
 
     private void Events_OnQuote(OrderBook orderbook)
@@ -289,4 +289,64 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     public double GuaranteeProviding { get; private set; }
 
     #endregion
+}
+
+
+public class Strategy
+{
+    /// <summary>
+    /// Наименование стратегии
+    /// </summary>
+    public static Tool StrTool { get; set; }
+
+    /// <summary>
+    /// Признак активности
+    /// </summary>
+    public bool IsActive { get; set; } = false;
+
+    /// <summary>
+    /// Операция стоп-заявки
+    /// </summary>
+    public Operation Operation { get; set; } = Operation.Buy;
+
+    /// <summary>
+    /// Количество уровней
+    /// </summary>
+    public int Levels { get; set; } = 5;
+
+    /// <summary>
+    /// Шаг сетки
+    /// </summary>
+    public decimal Step { get; set; } = (decimal)0.001;
+
+    /// <summary>
+    /// Цель
+    /// </summary>
+    public decimal Cels { get; set; } = 1;
+
+    /// <summary>
+    /// Цена стоп-заявки
+    /// </summary>
+    public decimal Price { get; set; } = StrTool.LastPrice;
+
+    /// <summary>
+    /// Количество
+    /// </summary>
+    public int Quantity { get; set; } = 5;
+
+    /// <summary>
+    /// Лист Стоп-Ордеров
+    /// </summary>
+    public List<long> _ListTrId { get; set; } = new List<long>();
+
+    public Strategy(Tool t, Operation o, decimal price, int Qty, int lvl, decimal step, decimal cels)
+    {
+        StrTool = t;
+        Operation = o;
+        Price = price;
+        Quantity = Qty;
+        Levels = lvl;
+        Step = step;
+        Cels = cels;
+    }
 }
