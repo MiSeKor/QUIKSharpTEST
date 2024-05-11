@@ -33,8 +33,8 @@ namespace DemoTestWPF
         //  Уроки C# – Потоки, Thread, Invoke, Action, delegate, Parallel.Invoke – C#
         //          https://youtu.be/vHqHrf914TA?si=uV1qaiKzyIDmCEXf
         //***********************************************************
-        public Quik _quik; 
-
+        public Quik _quik;
+        //TaskWindow taskWindow = new TaskWindow(); 
         private Tool Sber, Vtbr, Rosn; 
 
         public List<Tool> ListTool = new List<Tool>();

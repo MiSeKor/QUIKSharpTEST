@@ -26,7 +26,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     MainWindow wnd = (MainWindow)App.Current.MainWindow; // рабочий вариант пользования метода Log()
     //public Window2 wnd2 => (Window2)Application.Current.MainWindow;
     private decimal lastPrice;
-
+    TaskWindow taskWindow = new TaskWindow();
     /// <summary>
     ///     Конструктор класса
     /// </summary>
@@ -142,8 +142,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
     {
         Positions = Convert.ToDecimal(_quik.Trading.GetDepo(СlientCode, this.FirmID,
             this.SecurityCode, this.AccountID).Result.DepoCurrentBalance / this.Lot);
-        Refresh();
-        //testMethod();
+        Refresh(); 
     }
 
     private void Events_OnDepoLimit(DepoLimitEx dLimit)
@@ -153,12 +152,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
             GetDepoLimit();
         }
     }
-
-    private void testMethod()
-    {
-        var t = _quik.Trading.GetParamEx(this.ClassCode, this.SecurityCode
-             , ParamNames.R_SETTLEPRICE, 1).Result;
-    }
+     
     private void Events_OnParam(Param par)
     {
         if (par.SecCode == SecurityCode)
@@ -294,6 +288,7 @@ public class Tool //: MainWindow // <--наследование https://youtu.be
 
 public class Strategy
 {
+    #region Свойства
     /// <summary>
     /// Наименование стратегии
     /// </summary>
@@ -338,6 +333,8 @@ public class Strategy
     /// Лист Стоп-Ордеров
     /// </summary>
     public List<long> _ListTrId { get; set; } = new List<long>();
+
+    #endregion
 
     public Strategy(Tool t, Operation o, decimal price, int Qty, int lvl, decimal step, decimal cels)
     {
